@@ -1,0 +1,27 @@
+def mm(n, mx, v, ch, path):
+    if n in v:  
+        return v[n], path + [n]
+
+    best = float('-inf') if mx else float('inf')
+    best_path = []
+
+    for c in ch[n]:
+        val, p = mm(c, not mx, v, ch, path + [n])
+        
+        if (mx and val > best) or (not mx and val < best):
+            best, best_path = val, p
+
+    return best, best_path
+
+v = {'C1': 12, 'C2': 10, 'C3': 3, 'C4': 5, 'C5': 8, 'C6': 10, 'C7': 11, 'C8': 2, 'C9': 12}
+
+ch = {
+    'A': ['B1', 'B2', 'B3'],
+    'B1': ['C1', 'C2', 'C3'],
+    'B2': ['C4', 'C5', 'C6'],
+    'B3': ['C7', 'C8', 'C9']
+}
+
+opt_val, opt_path = mm('A', True, v, ch, [])
+print("Optimal Value:", opt_val)
+print("Optimal Path:", " -> ".join(opt_path))
