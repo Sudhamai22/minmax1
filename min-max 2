@@ -1,0 +1,43 @@
+def minimax(n, d, max_p, tr):
+    if n not in tr:
+        return n, [n]
+    if max_p:
+        best_val = float('-inf')
+        best_path = []
+        for ch in tr[n]:
+            val, path = minimax(ch, d + 1, False, tr)
+            if val > best_val:
+                best_val = val
+                best_path = [n] + path
+        return best_val, best_path
+    else:
+        best_val = float('inf')
+        best_path = []
+        for ch in tr[n]:
+            val, path = minimax(ch, d + 1, True, tr)
+            if val < best_val:
+                best_val = val
+                best_path = [n] + path
+        return best_val, best_path
+
+tr = {
+    3: [3, 1],  
+    3: [3, 8],  
+    1: [1, 4],  
+    3: [-1, 3],  
+    8: [-5, 8],  
+    1: [1, -4],  
+    4: [4, -3],  
+    -1: [5, -1],  
+    3: [4, 3],  
+    -5: [-2, -5],  
+    8: [9, 8],  
+    1: [6, 1],  
+    -4: [-1, -4],  
+    4: [2, 4],  
+    -3: [7, -3]  
+}
+
+opt_val, opt_path = minimax(3, 0, True, tr)
+print("Optimal Value:", opt_val)
+print("Optimal Path:", " -> ".join(map(str, opt_path)))
