@@ -1,0 +1,93 @@
+import heapq
+from collections import deque
+g = {
+    'A': [('B', 6), ('D', 1)],
+    'B': [('A', 6), ('E', 2), ('C', 5)],
+    'C': [('B', 5), ('E', 5)],
+    'D': [('A', 1), ('E', 1)],
+    'E': [('B', 2), ('D', 1), ('C', 5)]
+}
+
+def shortest_path(g , src, dest):
+    q, cost = [(0, src)], {n: float('inf') for n in g }
+    cost[src] = 0
+    while q:
+        curr_cost, node = heapq.heappop(q)
+        if node == dest:
+            return curr_cost
+        for adj, wt in g [node]:
+            total = curr_cost + wt
+            if total < cost[adj]:
+                cost[adj] = total
+                heapq.heappush(q, (total, adj))
+    return -1
+print("Shortest Path from A to C:", shortest_path(g , 'A', 'C'))
+
+def bfs(g , start):
+    q, seen = deque([start]), {start}
+    while q:
+        curr = q.popleft()
+        print(curr, end=" ")
+        for adj, _ in g [curr]:
+            if adj not in seen:
+                seen.add(adj)
+                q.append(adj)
+    print()
+print("BFS Traversal:")
+bfs(g , 'A')
+
+def dfs(g , node, seen=None):
+    if seen is None:
+        seen = set()
+    if node not in seen:
+        print(node, end=" ")
+        seen.add(node)
+        for adj, _ in g [node]:
+            dfs(g , adj, seen)
+print("DFS Traversal:")
+dfs(g , 'A')
+print()
+
+def contains_cycle(g ):
+    def explore(node, parent, seen):
+        seen.add(node)
+        for adj, _ in g[node]:
+            if adj not in seen:
+                if explore(adj, node, seen):
+                    return True
+            elif adj != parent:
+                return True
+        return False
+
+    seen = set()
+    for node in g:
+        if node not in seen:
+            if explore(node, None, seen):
+                return True
+    return False
+print("Cycle Detected:", contains_cycle(g))
+
+def graph_coloring(g, max_colors):
+    color = {}
+    nodes = list(g.keys())
+    
+    def is_safe(node, c):
+        return all(color.get(neigh) != c for neigh, _ in g[node])
+    
+    def dfs(idx):
+        if idx == len(nodes):
+            return True
+        node = nodes[idx]
+        for c in range(1, max_colors + 1):
+            if is_safe(node, c):
+                color[node] = c
+                if dfs(idx + 1):
+                    return True
+                color.pop(node)
+        return False
+
+    if dfs(0):
+        return color
+    return "Not possible"
+
+print("Graph Coloring:", graph_coloring(g, 3))
