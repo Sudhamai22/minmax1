@@ -1,0 +1,107 @@
+import heapq
+from collections import deque
+
+g = {
+    'A': [('B', 4), ('C', 5)],
+    'B': [('A', 4), ('D', 9), ('C', 11)],
+    'C': [('A', 5), ('B', 11), ('E', 3)],
+    'D': [('B', 9), ('E', 7), ('F', 2)],
+    'E': [('C', 3), ('D', 7), ('F', 6)],
+    'F': [('D', 2), ('E', 6)]
+}
+
+def sp(g, s, t):
+    q, cost, prev = [(0, s)], {n: float('inf') for n in g}, {}
+    cost[s] = 0
+    while q:
+        c, n = heapq.heappop(q)
+        if n == t:
+            break
+        for adj, w in g[n]:
+            tot = c + w
+            if tot < cost[adj]:
+                cost[adj] = tot
+                prev[adj] = n
+                heapq.heappush(q, (tot, adj))
+    
+    if t not in prev:
+        return -1, []
+    
+    path, node = [], t
+    while node:
+        path.append(node)
+        node = prev.get(node)
+    
+    return cost[t], path[::-1]
+
+dist, path = sp(g, 'A', 'F')
+print(f"Shortest Path from A to F: {dist} Path: {'->'.join(path)}")
+
+def bfs(g, s):
+    q, seen = deque([s]), {s}
+    while q:
+        n = q.popleft()
+        print(n, end=" ")
+        for adj, _ in g[n]:
+            if adj not in seen:
+                seen.add(adj)
+                q.append(adj)
+    print()
+
+print("BFS Traversal:")
+bfs(g, 'A')
+
+def dfs(g, n, seen=None):
+    if seen is None:
+        seen = set()
+    if n not in seen:
+        print(n, end=" ")
+        seen.add(n)
+        for adj, _ in g[n]:
+            dfs(g, adj, seen)
+
+print("DFS Traversal:")
+dfs(g, 'A')
+print()
+
+def has_cycle(g):
+    def dfs(n, p, seen):
+        seen.add(n)
+        for adj, _ in g[n]:
+            if adj not in seen:
+                if dfs(adj, n, seen):
+                    return True
+            elif adj != p:
+                return True
+        return False
+
+    seen = set()
+    for n in g:
+        if n not in seen:
+            if dfs(n, None, seen):
+                return True
+    return False
+
+print("Cycle Detected:", has_cycle(g))
+
+def g_coloring(g, mc):
+    col, nodes = {}, list(g.keys())
+
+    def safe(n, c):
+        return all(col.get(neigh) != c for neigh, _ in g[n])
+
+    def dfs(idx):
+        if idx == len(nodes):
+            return True
+        n = nodes[idx]
+        for c in range(1, mc + 1):
+            if safe(n, c):
+                col[n] = c
+                if dfs(idx + 1):
+                    return True
+                col.pop(n)
+        return False
+
+    return col if dfs(0) else "Not possible"
+
+print("Graph Coloring:", g_coloring(g, 3))
