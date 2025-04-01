@@ -1,0 +1,61 @@
+import math
+
+tree = {
+    'A': ['B1', 'B2', 'B3'],
+    'B1': ['C1', 'C2', 'C3'],
+    'B2': ['C4', 'C5', 'C6'],
+    'B3': ['C7', 'C8', 'C9']
+}
+
+values = {
+    'C1': 12, 'C2': 10, 'C3': 3,
+    'C4': 5, 'C5': 8, 'C6': 10,
+    'C7': 11, 'C8': 2, 'C9': 12
+}
+
+def alpha_beta_pruning(node, depth, alpha, beta, maximizingPlayer, path):
+    if node not in tree:  
+        return values[node], path + [node]
+
+    if maximizingPlayer:
+        max_eval = -math.inf
+        best_path = []
+        
+        for child in tree[node]:
+            eval, child_path = alpha_beta_pruning(child, depth + 1, alpha, beta, False, path + [node])
+            
+            if eval > max_eval:
+                max_eval = eval
+                best_path = child_path
+
+            alpha = max(alpha, eval)
+            
+            if beta <= alpha:
+                break 
+
+        return max_eval, best_path
+
+    else:
+        min_eval = math.inf
+        best_path = []
+        
+        for child in tree[node]:
+            eval, child_path = alpha_beta_pruning(child, depth + 1, alpha, beta, True, path + [node])
+            
+            if eval < min_eval:
+                min_eval = eval
+                best_path = child_path
+
+            beta = min(beta, eval)
+            
+            if beta <= alpha:
+                break  
+
+        return min_eval, best_path
+
+alpha = -math.inf
+beta = math.inf
+optimal_value, optimal_path = alpha_beta_pruning('A', 0, alpha, beta, True, [])
+
+print(f"Optimal Value: {optimal_value}")
+print(f"Optimal Path: {' -> '.join(optimal_path)}")
